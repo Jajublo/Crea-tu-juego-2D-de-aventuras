@@ -118,7 +118,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Animations()
     {
-        if (isAttacking || Time.timeScale == 0) return;
+        if (isAttacking || uncontrollable || Time.timeScale == 0) return;
 
         if (direction.magnitude != 0)
         {
@@ -161,6 +161,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Destroy(collision.gameObject);
             gameManager.IncreaseMaxHP();
+            StartCoroutine(PickItem());
         }
         else if (collision.CompareTag("Heal") && gameManager.CanHeal())
         {
@@ -215,5 +216,18 @@ public class PlayerMovement : MonoBehaviour
         yield return new WaitForSeconds(knockbackTime);
         rigidBody.velocity = Vector3.zero;
         uncontrollable = false;
+    }
+
+    IEnumerator PickItem()
+    {
+        animator.Play("Pick_Item");
+        uncontrollable = true;
+        direction =rigidBody.velocity = Vector2.zero;
+        Camera.main.GetComponent<CameraController>().PauseEnemies();
+
+        yield return new WaitForSeconds(1f);
+
+        uncontrollable = false;
+        Camera.main.GetComponent<CameraController>().ResumeEnemies();
     }
 }

@@ -88,4 +88,14 @@ public class CameraController : MonoBehaviour
         entitySceneControl.ResetPositionEntitiesScene(currentPos);
         entitySceneControl.ActiveAllEntitiesScene(cameraDestination);
     }
+
+    public void PauseEnemies()
+    {
+        entitySceneControl.StopAllEntitiesScene(transform.position);
+    }
+
+    public void ResumeEnemies()
+    {
+        entitySceneControl.ActiveAllEntitiesScene(transform.position);
+    }
 }

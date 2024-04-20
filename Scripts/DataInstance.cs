@@ -8,6 +8,9 @@ public class DataInstance : MonoBehaviour
 
     public Vector2 playerPosition;
 
+    public int currentHearts;
+    public int hp;
+
     public static DataInstance Instance
     {
         get
@@ -34,5 +37,15 @@ public class DataInstance : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
         }
+    }
+
+    public void SetPlayerPosition(Vector2 playerPos)
+    {
+        playerPosition = playerPos;
+
+        GameManager gm = FindObjectOfType<GameManager>();
+
+        currentHearts = gm.currentHearts;
+        hp = gm.hp;
     }
 }

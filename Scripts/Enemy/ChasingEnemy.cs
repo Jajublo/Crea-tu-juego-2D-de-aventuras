@@ -9,7 +9,7 @@ public class ChasingEnemy : EnemyHealth
 
     List<Node> path;
     Vector3 destination = Vector3.zero;
-    bool destinationReached;
+    bool destinationReached = true;
 
     PlayerMovement player;
     public Node[][] grid;
@@ -136,6 +136,7 @@ public class ChasingEnemy : EnemyHealth
         destination = Vector3.zero;
         direction = Vector2.zero;
         Animations();
+        destinationReached = true;
     }
 
     public override void ContinueBehaviour()

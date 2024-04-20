@@ -8,8 +8,8 @@ public class GameManager : MonoBehaviour
 {
     public Image[] playerHearts;
     public Sprite[] heartStatus;
-    int currentHearts;
-    int hp;
+    public int currentHearts;
+    public int hp;
 
     static int minHearts = 3;
     static int maxHearts = 14;
@@ -21,6 +21,12 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI npcDialogText;
     public TextMeshProUGUI npcName;
     public Image npcImage;
+
+    private void Awake()
+    {
+        currentHearts = DataInstance.Instance.currentHearts;
+        hp = DataInstance.Instance.hp;
+    }
 
     void Start()
     {
