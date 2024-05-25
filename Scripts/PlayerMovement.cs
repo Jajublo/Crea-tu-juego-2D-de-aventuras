@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f;
+    public SpriteRenderer pickItem;
     Vector2 direction;
 
     Rigidbody2D rigidBody;
@@ -161,6 +162,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Destroy(collision.gameObject);
             gameManager.IncreaseMaxHP();
+            pickItem.sprite = collision.GetComponent<SpriteRenderer>().sprite;
             StartCoroutine(PickItem());
         }
         else if (collision.CompareTag("Heal") && gameManager.CanHeal())
@@ -171,6 +173,13 @@ public class PlayerMovement : MonoBehaviour
         else if (collision.CompareTag("Interaction"))
         {
             basicInteractionList.Add(collision.GetComponent<BasicInteraction>());
+        }
+        else if (collision.CompareTag("Key"))
+        {
+            Destroy(collision.gameObject);
+            gameManager.UpdateCurrentKeys(1);
+            pickItem.sprite = collision.GetComponent<SpriteRenderer>().sprite;
+            StartCoroutine(PickItem());
         }
     }
 

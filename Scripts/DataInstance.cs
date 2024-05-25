@@ -10,6 +10,7 @@ public class DataInstance : MonoBehaviour
 
     public int currentHearts;
     public int hp;
+    public int currentKeys;
 
     public static DataInstance Instance
     {
@@ -47,5 +48,6 @@ public class DataInstance : MonoBehaviour
 
         currentHearts = gm.currentHearts;
         hp = gm.hp;
+        currentKeys = gm.currentKeys;
     }
 }

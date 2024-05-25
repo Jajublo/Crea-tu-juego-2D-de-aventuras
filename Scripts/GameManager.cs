@@ -14,6 +14,9 @@ public class GameManager : MonoBehaviour
     static int minHearts = 3;
     static int maxHearts = 14;
 
+    public Image[] playerKeys;
+    public int currentKeys;
+
     public GameObject dialogBox;
     public TextMeshProUGUI dialogText;
 
@@ -26,6 +29,7 @@ public class GameManager : MonoBehaviour
     {
         currentHearts = DataInstance.Instance.currentHearts;
         hp = DataInstance.Instance.hp;
+        currentKeys = DataInstance.Instance.currentKeys;
     }
 
     void Start()
@@ -33,6 +37,7 @@ public class GameManager : MonoBehaviour
         currentHearts = Mathf.Clamp(currentHearts, minHearts, maxHearts);
         hp = Mathf.Clamp(hp, 1, currentHearts * 4);
         UpdateCurrentHearts();
+        UpdateCurrentKeys(0);
     }
 
     public bool CanHeal()
@@ -83,6 +88,16 @@ public class GameManager : MonoBehaviour
             case 2: return heartStatus[2];
             case 1: return heartStatus[1];
             default: return heartStatus[0];
+        }
+    }
+
+    public void UpdateCurrentKeys(int x)
+    {
+        currentKeys = Mathf.Clamp(currentKeys += x, 0, 99);
+
+        for(int i = 0; i < playerKeys.Length; i++)
+        {
+            playerKeys[i].enabled = currentKeys > i;
         }
     }
 

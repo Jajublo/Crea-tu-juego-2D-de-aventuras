@@ -25,6 +25,8 @@ public class BasicInteraction : MonoBehaviour
                 return playerFacing.x > 0;
             case DIRECTIONS.DIRECTION_RIGHT:
                 return playerFacing.x < 0;
+            case DIRECTIONS.ANY:
+                return true;
             default: return false;
         }
     }
