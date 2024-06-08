@@ -127,6 +127,10 @@ public class PathFindingManager : MonoBehaviour
     {
         int x = Mathf.RoundToInt(((worldPosition.x - width / 2) % width) - offset);
         int y = Mathf.RoundToInt(((worldPosition.y - height / 2) % height) - offset);
+
+        Debug.Log("WorldPosition: " + worldPosition + "x: " + x + "y: " + y);
+        Debug.Log("GridLengthX: " + grid.Length + "GridLengthX: " + grid[0].Length);
+
         return grid[x][y];
     }
 
