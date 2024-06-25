@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        DataInstance.Instance.LoadData();
         currentHearts = DataInstance.Instance.currentHearts;
         hp = DataInstance.Instance.hp;
         currentKeys = DataInstance.Instance.currentKeys;

@@ -31,8 +31,16 @@ public class LockedDoor : BasicInteraction
             opened = true;
             gameObject.GetComponent<BoxCollider2D>().enabled = false;
             gameObject.GetComponent<SpriteRenderer>().enabled = false;
+            DataInstance.Instance.SaveSceneData(name);
             return true;
         }
         return false;
+    }
+
+    public void OpenedDoor()
+    {
+        opened = true;
+        gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        gameObject.GetComponent<SpriteRenderer>().enabled = false;
     }
 }

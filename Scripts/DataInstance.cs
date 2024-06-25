@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class DataInstance : MonoBehaviour
 {
@@ -11,6 +12,10 @@ public class DataInstance : MonoBehaviour
     public int currentHearts;
     public int hp;
     public int currentKeys;
+
+    static string SaveDataKey = "SaveDataKey";
+    SaveData saveData;
+    SceneData sceneData;
 
     public static DataInstance Instance
     {
@@ -49,5 +54,102 @@ public class DataInstance : MonoBehaviour
         currentHearts = gm.currentHearts;
         hp = gm.hp;
         currentKeys = gm.currentKeys;
+
+        SavePlayerData();
     }
+
+    private void SavePlayerData()
+    {
+        saveData.currentHearts = currentHearts;
+        saveData.hp = hp;
+        saveData.currentKeys = currentKeys;
+
+        string json = JsonUtility.ToJson(saveData);
+        PlayerPrefs.SetString(SaveDataKey, json);
+        PlayerPrefs.Save();
+    }
+
+    public void SaveSceneData(string name)
+    {
+        if(sceneData == null || sceneData.sceneName != SceneManager.GetActiveScene().name)
+        {
+            sceneData = new SceneData();
+            sceneData.sceneName = SceneManager.GetActiveScene().name;
+            sceneData.objectsName = new List<string>();
+        }
+
+        if (saveData.sceneData.Contains(sceneData)) saveData.sceneData.Remove(sceneData);
+
+        sceneData.objectsName.Add(name);
+
+        saveData.sceneData.Add(sceneData);
+
+        SavePlayerData();
+    }
+
+    public void LoadData()
+    {
+        if(!PlayerPrefs.HasKey(SaveDataKey)) CreateSaveData();
+
+        string json = PlayerPrefs.GetString(SaveDataKey);
+        saveData = JsonUtility.FromJson<SaveData>(json);
+
+        currentHearts = saveData.currentHearts;
+        currentKeys = saveData.currentKeys;
+        hp = saveData.hp;
+
+        foreach (SceneData sceneData in saveData.sceneData)
+        {
+            if (sceneData.sceneName == SceneManager.GetActiveScene().name)
+            {
+                this.sceneData = sceneData;
+
+                foreach (string name in sceneData.objectsName)
+                {
+                    GameObject gameObject = GameObject.Find(name);
+
+                    if(gameObject != null)
+                    {
+                        if (gameObject.GetComponent<LockedDoor>()) gameObject.GetComponent<LockedDoor>().OpenedDoor();
+                        else if (gameObject.GetComponent<Chest>()) gameObject.GetComponent<Chest>().OpenedChest();
+                        else gameObject.SetActive(false);
+                    }
+                }
+            }
+        }
+    }
+
+    private void CreateSaveData()
+    {
+        SaveData saveData = new SaveData();
+        saveData.currentHearts = 3;
+        saveData.hp = 12;
+        saveData.currentKeys = 0;
+        saveData.sceneData = new List<SceneData>();
+
+        string json = JsonUtility.ToJson(saveData);
+        PlayerPrefs.SetString(SaveDataKey, json);
+        PlayerPrefs.Save();
+    }
+
+    private void DeleteSaveData()
+    {
+        if(PlayerPrefs.HasKey(SaveDataKey)) PlayerPrefs.DeleteKey(SaveDataKey);
+    }
+}
+
+[System.Serializable]
+public class SaveData
+{
+    public int currentHearts;
+    public int hp;
+    public int currentKeys;
+    public List<SceneData> sceneData;
+}
+
+[System.Serializable]
+public class SceneData
+{
+    public string sceneName;
+    public List<string> objectsName;
 }

@@ -49,6 +49,13 @@ public class Chest : BasicInteraction
         Instantiate(item, playerPos, Quaternion.identity);
         GetComponent<SpriteRenderer>().sprite = openSprite;
         opened = true;
+        DataInstance.Instance.SaveSceneData(name);
         return true;
+    }
+
+    public void OpenedChest()
+    {
+        GetComponent<SpriteRenderer>().sprite = openSprite;
+        opened = true;
     }
 }

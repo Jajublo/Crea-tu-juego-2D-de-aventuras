@@ -164,6 +164,7 @@ public class PlayerMovement : MonoBehaviour
             gameManager.IncreaseMaxHP();
             pickItem.sprite = collision.GetComponent<SpriteRenderer>().sprite;
             StartCoroutine(PickItem());
+            DataInstance.Instance.SaveSceneData(collision.name);
         }
         else if (collision.CompareTag("Heal") && gameManager.CanHeal())
         {
@@ -180,6 +181,7 @@ public class PlayerMovement : MonoBehaviour
             gameManager.UpdateCurrentKeys(1);
             pickItem.sprite = collision.GetComponent<SpriteRenderer>().sprite;
             StartCoroutine(PickItem());
+            DataInstance.Instance.SaveSceneData(collision.name);
         }
     }
 
