@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
 
     bool isAttacking;
     public GameObject arrow;
+    public GameObject bomb;
 
     bool invincible;
     float invincibilityTime = 1.2f;
@@ -92,6 +93,11 @@ public class PlayerMovement : MonoBehaviour
         {
             Bow();
         }
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+            Bomb();
+        }
     }
 
     private void Attack()
@@ -115,6 +121,11 @@ public class PlayerMovement : MonoBehaviour
         obj.transform.eulerAngles = new Vector3(0, 0, Vector2.SignedAngle(new Vector2(direction.x , -direction.y), Vector2.right));
         obj.transform.position = transform.position + new Vector3(direction.x, 0, direction.y) * 0.2f;
         obj.GetComponent<Rigidbody2D>().velocity = direction * 10;
+    }
+
+    private void Bomb()
+    {
+        var obj = Instantiate(bomb, transform.position, Quaternion.identity);
     }
 
     private void Animations()
@@ -182,6 +193,12 @@ public class PlayerMovement : MonoBehaviour
             pickItem.sprite = collision.GetComponent<SpriteRenderer>().sprite;
             StartCoroutine(PickItem());
             DataInstance.Instance.SaveSceneData(collision.name);
+        }
+        else if (collision.CompareTag("Explosion") && !invincible)
+        {
+            gameManager.UpdateCurrentHP(-2);
+            StartCoroutine(Invincibility());
+            StartCoroutine(Knockback(collision.transform.position));
         }
     }
 

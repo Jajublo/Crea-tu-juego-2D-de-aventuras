@@ -33,7 +33,8 @@ public class EnemyHealth : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Weapon") && !invincible)
+        if ((collision.CompareTag("Weapon") || collision.CompareTag("Explosion"))
+            && !invincible)
         {
             hp--;
             if (hp <= 0)

@@ -8,7 +8,7 @@ public class EnemyDummy : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Weapon")
+        if (collision.CompareTag("Weapon") || collision.CompareTag("Explosion"))
         {
             HP--;
             if(HP <= 0)
