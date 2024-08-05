@@ -57,7 +57,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Inputs()
     {
-        if (isAttacking || uncontrollable) return;
+        if (isAttacking || uncontrollable || Time.timeScale == 0) return;
 
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 

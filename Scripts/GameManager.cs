@@ -25,12 +25,16 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI npcName;
     public Image npcImage;
 
+    private bool paused;
+    public GameObject pauseMenu;
+
     private void Awake()
     {
         DataInstance.Instance.LoadData();
         currentHearts = DataInstance.Instance.currentHearts;
         hp = DataInstance.Instance.hp;
         currentKeys = DataInstance.Instance.currentKeys;
+        ResumeGame();
     }
 
     void Start()
@@ -39,6 +43,42 @@ public class GameManager : MonoBehaviour
         hp = Mathf.Clamp(hp, 1, currentHearts * 4);
         UpdateCurrentHearts();
         UpdateCurrentKeys(0);
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            paused = !paused;
+            PauseGame();
+        }
+    }
+
+    private void PauseGame()
+    {
+        if (paused)
+        {
+            Time.timeScale = 0;
+            pauseMenu.SetActive(true);
+            pauseMenu.GetComponentInChildren<Button>().Select();
+        }
+        else
+        {
+            Time.timeScale = 1;
+            pauseMenu.SetActive(false);
+        }
+    }
+
+    public void ResumeGame()
+    {
+        paused = false;
+        PauseGame();
+    }
+
+    public void PauseButtonGame()
+    {
+        paused = !paused;
+        PauseGame();
     }
 
     public bool CanHeal()
