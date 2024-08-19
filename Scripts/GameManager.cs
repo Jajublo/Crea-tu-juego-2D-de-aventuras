@@ -28,6 +28,14 @@ public class GameManager : MonoBehaviour
     private bool paused;
     public GameObject pauseMenu;
 
+    private int selectedWeapon;
+    public GameObject itemsMenu;
+
+    public TextMeshProUGUI weaponNameText;
+    public string[] weaponName;
+    public TextMeshProUGUI weaponDescriptionText;
+    public string[] weaponDescription;
+
     private void Awake()
     {
         DataInstance.Instance.LoadData();
@@ -49,8 +57,12 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            paused = !paused;
-            PauseGame();
+            if(itemsMenu.activeSelf) OpenInvButton();
+            else PauseButtonGame();
+        }
+        else if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            OpenInvButton();
         }
     }
 
@@ -69,6 +81,22 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    private void OpenInv()
+    {
+        if (paused)
+        {
+            Time.timeScale = 0;
+            itemsMenu.SetActive(true);
+            itemsMenu.GetComponentsInChildren<Button>()[selectedWeapon].Select();
+            ChangeWeaponText(selectedWeapon);
+        }
+        else
+        {
+            Time.timeScale = 1;
+            itemsMenu.SetActive(false);
+        }
+    }
+
     public void ResumeGame()
     {
         paused = false;
@@ -77,8 +105,29 @@ public class GameManager : MonoBehaviour
 
     public void PauseButtonGame()
     {
+        if (itemsMenu.activeSelf) return;
         paused = !paused;
         PauseGame();
+    }
+
+    public void OpenInvButton()
+    {
+        if (pauseMenu.activeSelf) return;
+        paused = !paused;
+        OpenInv();
+    }
+
+    public void SelectWeapon(int index)
+    {
+        selectedWeapon = index;
+        paused = false;
+        OpenInv();
+    }
+
+    public void ChangeWeaponText(int index)
+    {
+        weaponNameText.text = weaponName[index];
+        weaponDescriptionText.text = weaponDescription[index];
     }
 
     public bool CanHeal()
