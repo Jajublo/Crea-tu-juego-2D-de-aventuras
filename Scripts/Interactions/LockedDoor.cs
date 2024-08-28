@@ -12,15 +12,18 @@ public class LockedDoor : BasicInteraction
         gameManager = FindObjectOfType<GameManager>();
     }
 
-    public override bool Interact(Vector2 playerFacing, Vector2 playerPos)
+    public override bool CanInteract(Vector2 playerFacing, Vector2 playerPos)
     {
         if (opened) return false;
 
         bool success = FacingObject(playerFacing);
 
-        if (success) return OpenDoor();
-
         return success;
+    }
+
+    public override void Interact(Vector2 playerFacing, Vector2 playerPos)
+    {
+        OpenDoor();
     }
 
     private bool OpenDoor()

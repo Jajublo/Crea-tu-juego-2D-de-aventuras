@@ -28,9 +28,10 @@ public class GameManager : MonoBehaviour
     private bool paused;
     public GameObject pauseMenu;
 
-    private int selectedWeapon;
+    public int selectedWeapon;
     public GameObject itemsMenu;
 
+    private ItemDisplay itemDisplay;
     public TextMeshProUGUI weaponNameText;
     public string[] weaponName;
     public TextMeshProUGUI weaponDescriptionText;
@@ -38,10 +39,12 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        itemDisplay = FindObjectOfType<ItemDisplay>();
         DataInstance.Instance.LoadData();
         currentHearts = DataInstance.Instance.currentHearts;
         hp = DataInstance.Instance.hp;
         currentKeys = DataInstance.Instance.currentKeys;
+        selectedWeapon = DataInstance.Instance.selectedWeapon;
         ResumeGame();
     }
 
@@ -51,6 +54,7 @@ public class GameManager : MonoBehaviour
         hp = Mathf.Clamp(hp, 1, currentHearts * 4);
         UpdateCurrentHearts();
         UpdateCurrentKeys(0);
+        SelectWeapon(selectedWeapon);
     }
 
     private void Update()
@@ -120,6 +124,7 @@ public class GameManager : MonoBehaviour
     public void SelectWeapon(int index)
     {
         selectedWeapon = index;
+        itemDisplay.ChangeItemIcon(index);
         paused = false;
         OpenInv();
     }

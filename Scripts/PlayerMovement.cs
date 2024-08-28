@@ -14,6 +14,7 @@ public class PlayerMovement : MonoBehaviour
 
     bool isAttacking;
     public GameObject arrow;
+    public GameObject fireball;
     public GameObject bomb;
 
     bool invincible;
@@ -25,8 +26,10 @@ public class PlayerMovement : MonoBehaviour
     float knockbackTime = 0.3f;
 
     GameManager gameManager;
+    InteractionDisplay interactionDisplay;
 
     List<BasicInteraction> basicInteractionList = new List<BasicInteraction>();
+    BasicInteraction currentBasicInteraction;
 
     private void Awake()
     {
@@ -39,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
         animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         gameManager = FindObjectOfType<GameManager>();
+        interactionDisplay = FindObjectOfType<InteractionDisplay>();
     }
 
     private void FixedUpdate()
@@ -57,32 +61,40 @@ public class PlayerMovement : MonoBehaviour
 
     private void Inputs()
     {
-        if (isAttacking || uncontrollable || Time.timeScale == 0) return;
+        if (isAttacking || uncontrollable) return;
 
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        Vector2 playerFacing = new Vector2(animator.GetFloat("Horizontal"), animator.GetFloat("Vertical"));
+
+        if (basicInteractionList != null)
         {
-            if (basicInteractionList != null)
+            bool interactionSuccess = false;
+
+            foreach (BasicInteraction basicInteraction in basicInteractionList)
             {
-                Vector2 playerFacing = new Vector2(animator.GetFloat("Horizontal"), animator.GetFloat("Vertical"));
-                bool interactionSuccess = false;
-
-                foreach (BasicInteraction basicInteraction in basicInteractionList)
+                if (interactionSuccess) return;
+                if (basicInteraction.CanInteract(playerFacing, transform.position))
                 {
-                    if (interactionSuccess) return;
-                    if (basicInteraction.Interact(playerFacing, transform.position))
-                    {
-                        interactionSuccess = true;
-                    }
-                }
-
-                if (!interactionSuccess)
-                {
-                    Attack();
+                    interactionSuccess = true;
+                    currentBasicInteraction = basicInteraction;
                 }
             }
+            if (!interactionSuccess) currentBasicInteraction = null;
+        }
+        else
+        {
+            currentBasicInteraction = null;
+        }
 
+        interactionDisplay.ChangeInteraction(currentBasicInteraction);
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if(currentBasicInteraction)
+            {
+                currentBasicInteraction.Interact(playerFacing, transform.position);
+            }
             else
             {
                 Attack();
@@ -91,12 +103,18 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Z))
         {
-            Bow();
-        }
-
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            Bomb();
+            switch (gameManager.selectedWeapon)
+            {
+                case 0: 
+                    Bomb(); 
+                    break;
+                case 1:
+                    Bow();
+                    break;
+                default:
+                    Magic();
+                    break;
+            }
         }
     }
 
@@ -114,11 +132,27 @@ public class PlayerMovement : MonoBehaviour
         AttackAnimDirection();
     }
 
+    private void Magic()
+    {
+        animator.Play("Wand");
+        isAttacking = true;
+        AttackAnimDirection();
+    }
+
     private void Shoot()
     {
         var obj = Instantiate(arrow);
         Vector2 direction = new Vector2(animator.GetFloat("Horizontal"), animator.GetFloat("Vertical"));
         obj.transform.eulerAngles = new Vector3(0, 0, Vector2.SignedAngle(new Vector2(direction.x , -direction.y), Vector2.right));
+        obj.transform.position = transform.position + new Vector3(direction.x, 0, direction.y) * 0.2f;
+        obj.GetComponent<Rigidbody2D>().velocity = direction * 10;
+    }
+
+    private void ShootMagic()
+    {
+        var obj = Instantiate(fireball);
+        Vector2 direction = new Vector2(animator.GetFloat("Horizontal"), animator.GetFloat("Vertical"));
+        obj.transform.eulerAngles = new Vector3(0, 0, Vector2.SignedAngle(new Vector2(direction.x, -direction.y), Vector2.down));
         obj.transform.position = transform.position + new Vector3(direction.x, 0, direction.y) * 0.2f;
         obj.GetComponent<Rigidbody2D>().velocity = direction * 10;
     }

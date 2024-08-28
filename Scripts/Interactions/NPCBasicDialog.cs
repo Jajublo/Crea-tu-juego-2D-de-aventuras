@@ -11,24 +11,28 @@ public class NPCBasicDialog : BasicInteraction
     GameManager gameManager;
     NPCRandomPatrol randomPatrol;
 
+    GameObject dialogAnimation;
+
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
         randomPatrol = GetComponent<NPCRandomPatrol>();
+        dialogAnimation = transform.GetChild(0).gameObject;
     }
 
-    public override bool Interact(Vector2 playerFacing, Vector2 playerPos)
+    public override bool CanInteract(Vector2 playerFacing, Vector2 playerPos)
     {
         bool success = FacingNPC(playerFacing, playerPos, transform.position);
 
-        if (success)
-        {
-            randomPatrol.FacePlayer(playerPos);
-            NextDialog();
-        }
-        else EndDialog();
+        dialogAnimation.SetActive(success);
 
         return success;
+    }
+
+    public override void Interact(Vector2 playerFacing, Vector2 playerPos)
+    {
+        randomPatrol.FacePlayer(playerPos);
+        NextDialog();
     }
 
     private void NextDialog()

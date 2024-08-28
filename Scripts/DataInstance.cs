@@ -12,6 +12,7 @@ public class DataInstance : MonoBehaviour
     public int currentHearts;
     public int hp;
     public int currentKeys;
+    public int selectedWeapon;
 
     static string SaveDataKey = "SaveDataKey";
     SaveData saveData;
@@ -54,6 +55,7 @@ public class DataInstance : MonoBehaviour
         currentHearts = gm.currentHearts;
         hp = gm.hp;
         currentKeys = gm.currentKeys;
+        selectedWeapon = gm.selectedWeapon;
 
         SavePlayerData();
     }
@@ -63,6 +65,7 @@ public class DataInstance : MonoBehaviour
         saveData.currentHearts = currentHearts;
         saveData.hp = hp;
         saveData.currentKeys = currentKeys;
+        saveData.selectedWeapon = selectedWeapon;
 
         string json = JsonUtility.ToJson(saveData);
         PlayerPrefs.SetString(SaveDataKey, json);
@@ -97,6 +100,7 @@ public class DataInstance : MonoBehaviour
         currentHearts = saveData.currentHearts;
         currentKeys = saveData.currentKeys;
         hp = saveData.hp;
+        selectedWeapon = saveData.selectedWeapon;
 
         foreach (SceneData sceneData in saveData.sceneData)
         {
@@ -144,6 +148,7 @@ public class SaveData
     public int currentHearts;
     public int hp;
     public int currentKeys;
+    public int selectedWeapon;
     public List<SceneData> sceneData;
 }
 

@@ -8,19 +8,26 @@ public class SignDialog : BasicInteraction
     int dialogCounter;
     GameManager gameManager;
 
+    GameObject dialogAnimation;
+
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
+        dialogAnimation = transform.GetChild(0).gameObject;
     }
 
-    public override bool Interact(Vector2 playerFacing, Vector2 playerPos)
+    public override bool CanInteract(Vector2 playerFacing, Vector2 playerPos)
     {
         bool success = FacingObject(playerFacing);
 
-        if (success) NextDialog();
-        else EndDialog();
+        dialogAnimation.SetActive(success);
 
         return success;
+    }
+
+    public override void Interact(Vector2 playerFacing, Vector2 playerPos)
+    {
+        NextDialog();
     }
 
     private void NextDialog()

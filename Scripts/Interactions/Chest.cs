@@ -15,15 +15,18 @@ public class Chest : BasicInteraction
         gameManager = FindObjectOfType<GameManager>();
     }
 
-    public override bool Interact(Vector2 playerFacing, Vector2 playerPos)
+    public override bool CanInteract(Vector2 playerFacing, Vector2 playerPos)
     {
         if (opened) return false;
 
         bool success = FacingObject(playerFacing);
 
-        if (success) return OpenChest(playerPos);
-
         return success;
+    }
+
+    public override void Interact(Vector2 playerFacing, Vector2 playerPos)
+    {
+        OpenChest(playerPos);
     }
 
     private bool OpenChest(Vector2 playerPos)

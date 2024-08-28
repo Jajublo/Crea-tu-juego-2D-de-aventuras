@@ -8,10 +8,12 @@ public class BasicInteraction : MonoBehaviour
 
     public DIRECTIONS facingDirection;
 
-    public virtual bool Interact(Vector2 playerFacing, Vector2 playerPos)
+    public virtual bool CanInteract(Vector2 playerFacing, Vector2 playerPos)
     {
         return false;
     }
+
+    public virtual void Interact(Vector2 playerFacing, Vector2 playerPos) { }
 
     public virtual bool FacingObject(Vector2 playerFacing)
     {
