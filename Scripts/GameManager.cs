@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour
     public GameObject pauseMenu;
 
     public int selectedWeapon;
+    public int[] selectedWeaponAmmo;
     public GameObject itemsMenu;
+    private int maxMana = 5;
 
     private ItemDisplay itemDisplay;
     public TextMeshProUGUI weaponNameText;
@@ -45,6 +47,7 @@ public class GameManager : MonoBehaviour
         hp = DataInstance.Instance.hp;
         currentKeys = DataInstance.Instance.currentKeys;
         selectedWeapon = DataInstance.Instance.selectedWeapon;
+        selectedWeaponAmmo = DataInstance.Instance.selectedWeaponAmmo;
         ResumeGame();
     }
 
@@ -124,9 +127,27 @@ public class GameManager : MonoBehaviour
     public void SelectWeapon(int index)
     {
         selectedWeapon = index;
-        itemDisplay.ChangeItemIcon(index);
+        itemDisplay.ChangeItemIcon(index, selectedWeaponAmmo[index], maxMana);
         paused = false;
         OpenInv();
+    }
+
+    public bool UpdateWeaponAmmo(int index, int amount)
+    {
+        if (amount > 0)
+        {
+            if (index == 2 && selectedWeaponAmmo[index] >= maxMana)
+            {
+                return false;
+            }
+            else if (selectedWeaponAmmo[index] >= 20)
+            {
+                return false;
+            }
+        }
+        selectedWeaponAmmo[index] += amount;
+        itemDisplay.ChangeItemIcon(index, selectedWeaponAmmo[index], maxMana);
+        return true;
     }
 
     public void ChangeWeaponText(int index)

@@ -13,6 +13,7 @@ public class DataInstance : MonoBehaviour
     public int hp;
     public int currentKeys;
     public int selectedWeapon;
+    public int[] selectedWeaponAmmo;
 
     static string SaveDataKey = "SaveDataKey";
     SaveData saveData;
@@ -56,6 +57,7 @@ public class DataInstance : MonoBehaviour
         hp = gm.hp;
         currentKeys = gm.currentKeys;
         selectedWeapon = gm.selectedWeapon;
+        selectedWeaponAmmo = gm.selectedWeaponAmmo;
 
         SavePlayerData();
     }
@@ -66,6 +68,7 @@ public class DataInstance : MonoBehaviour
         saveData.hp = hp;
         saveData.currentKeys = currentKeys;
         saveData.selectedWeapon = selectedWeapon;
+        saveData.selectedWeaponAmmo = selectedWeaponAmmo;
 
         string json = JsonUtility.ToJson(saveData);
         PlayerPrefs.SetString(SaveDataKey, json);
@@ -92,6 +95,7 @@ public class DataInstance : MonoBehaviour
 
     public void LoadData()
     {
+        DeleteSaveData();
         if(!PlayerPrefs.HasKey(SaveDataKey)) CreateSaveData();
 
         string json = PlayerPrefs.GetString(SaveDataKey);
@@ -101,6 +105,7 @@ public class DataInstance : MonoBehaviour
         currentKeys = saveData.currentKeys;
         hp = saveData.hp;
         selectedWeapon = saveData.selectedWeapon;
+        selectedWeaponAmmo = saveData.selectedWeaponAmmo;
 
         foreach (SceneData sceneData in saveData.sceneData)
         {
@@ -129,6 +134,7 @@ public class DataInstance : MonoBehaviour
         saveData.currentHearts = 3;
         saveData.hp = 12;
         saveData.currentKeys = 0;
+        saveData.selectedWeaponAmmo = new int[] { 20, 19, 5 };
         saveData.sceneData = new List<SceneData>();
 
         string json = JsonUtility.ToJson(saveData);
@@ -149,6 +155,7 @@ public class SaveData
     public int hp;
     public int currentKeys;
     public int selectedWeapon;
+    public int[] selectedWeaponAmmo;
     public List<SceneData> sceneData;
 }
 

@@ -105,14 +105,26 @@ public class PlayerMovement : MonoBehaviour
         {
             switch (gameManager.selectedWeapon)
             {
-                case 0: 
-                    Bomb(); 
+                case 0:
+                    if (gameManager.selectedWeaponAmmo[0] > 0)
+                    {
+                        gameManager.UpdateWeaponAmmo(0, -1);
+                        Bomb();
+                    }
                     break;
                 case 1:
-                    Bow();
+                    if (gameManager.selectedWeaponAmmo[1] > 0)
+                    {
+                        gameManager.UpdateWeaponAmmo(1, -1);
+                        Bow();
+                    }
                     break;
                 default:
-                    Magic();
+                    if (gameManager.selectedWeaponAmmo[2] > 0)
+                    {
+                        gameManager.UpdateWeaponAmmo(2, -1);
+                        Magic();
+                    }
                     break;
             }
         }
@@ -233,6 +245,21 @@ public class PlayerMovement : MonoBehaviour
             gameManager.UpdateCurrentHP(-2);
             StartCoroutine(Invincibility());
             StartCoroutine(Knockback(collision.transform.position));
+        }
+        else if (collision.CompareTag("BombAmmo"))
+        {
+            if (gameManager.UpdateWeaponAmmo(0, 1)) 
+                Destroy(collision.gameObject);
+        }
+        else if (collision.CompareTag("ArrowAmmo"))
+        {
+            if (gameManager.UpdateWeaponAmmo(1, 1))
+                Destroy(collision.gameObject);
+        }
+        else if (collision.CompareTag("MagicAmmo"))
+        {
+            if (gameManager.UpdateWeaponAmmo(2, 1))
+            Destroy(collision.gameObject);
         }
     }
 
