@@ -5,6 +5,7 @@ using UnityEngine;
 public class NPCRandomPatrol : MonoBehaviour
 {
     [Header("RandomPatrol parameters")]
+    public bool stop;
     public float speed;
     public float minPatrolTime;
     public float maxPatrolTime;
@@ -24,13 +25,18 @@ public class NPCRandomPatrol : MonoBehaviour
 
         initialPosition = transform.position;
 
-        direction = RandomDirection();
-        animator.SetFloat("Horizontal", direction.x);
-        animator.SetFloat("Vertical", direction.y);
+        if (!stop)
+        {
+            direction = RandomDirection();
+            animator.SetFloat("Horizontal", direction.x);
+            animator.SetFloat("Vertical", direction.y);
+        }
     }
 
     IEnumerator Patrol()
     {
+        if(stop) yield break;
+
         direction = RandomDirection();
         Animations();
         yield return new WaitForSeconds(Random.Range(minPatrolTime, maxPatrolTime));

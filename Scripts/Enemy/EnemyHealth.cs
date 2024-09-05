@@ -40,6 +40,7 @@ public class EnemyHealth : MonoBehaviour
             if (hp <= 0)
             {
                 enemyHit.Defeat();
+                FindObjectOfType<GameManager>().SpawnItem(transform.position);
             }
             StopBehaviour();
             StartCoroutine(Invincibility());

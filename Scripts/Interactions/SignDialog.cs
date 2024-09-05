@@ -8,7 +8,7 @@ public class SignDialog : BasicInteraction
     int dialogCounter;
     GameManager gameManager;
 
-    GameObject dialogAnimation;
+    public GameObject dialogAnimation;
 
     private void Start()
     {

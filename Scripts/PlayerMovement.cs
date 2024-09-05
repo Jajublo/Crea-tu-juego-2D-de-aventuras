@@ -6,6 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f;
     public SpriteRenderer pickItem;
+    public SpriteRenderer pickSmallItem;
     Vector2 direction;
 
     Rigidbody2D rigidBody;
@@ -61,7 +62,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Inputs()
     {
-        if (isAttacking || uncontrollable) return;
+        if (isAttacking || uncontrollable || gameManager.choiceButtons.activeSelf) return;
 
         direction = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical")).normalized;
 
@@ -73,11 +74,30 @@ public class PlayerMovement : MonoBehaviour
 
             foreach (BasicInteraction basicInteraction in basicInteractionList)
             {
-                if (interactionSuccess) return;
-                if (basicInteraction.CanInteract(playerFacing, transform.position))
+                if (!interactionSuccess)
                 {
-                    interactionSuccess = true;
-                    currentBasicInteraction = basicInteraction;
+                    if (basicInteraction.CanInteract(playerFacing, transform.position))
+                    {
+                        interactionSuccess = true;
+                        currentBasicInteraction = basicInteraction;
+                    }
+                }
+                else
+                {
+                    switch (basicInteraction)
+                    {
+                        case NPCBasicDialog dialog:
+                            dialog.dialogAnimation.SetActive(false);
+                            break;
+                        case BuyItem dialog:
+                            dialog.dialogAnimation.SetActive(false);
+                            break;
+                        case SignDialog dialog:
+                            dialog.dialogAnimation.SetActive(false);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             if (!interactionSuccess) currentBasicInteraction = null;
@@ -227,6 +247,7 @@ public class PlayerMovement : MonoBehaviour
         {
             Destroy(collision.gameObject);
             gameManager.UpdateCurrentHP(4);
+            StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
         }
         else if (collision.CompareTag("Interaction"))
         {
@@ -248,18 +269,36 @@ public class PlayerMovement : MonoBehaviour
         }
         else if (collision.CompareTag("BombAmmo"))
         {
-            if (gameManager.UpdateWeaponAmmo(0, 1)) 
+            if (gameManager.UpdateWeaponAmmo(0, 1))
+            {
                 Destroy(collision.gameObject);
+                StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
+            }
         }
         else if (collision.CompareTag("ArrowAmmo"))
         {
             if (gameManager.UpdateWeaponAmmo(1, 1))
+            {
                 Destroy(collision.gameObject);
+                StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
+            }
         }
         else if (collision.CompareTag("MagicAmmo"))
         {
             if (gameManager.UpdateWeaponAmmo(2, 1))
-            Destroy(collision.gameObject);
+            {
+                Destroy(collision.gameObject);
+                StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
+            }
+        }
+        else if (collision.CompareTag("Coin"))
+        {
+            if (gameManager.coins < 99)
+            {
+                gameManager.UpdateCoins(collision.GetComponent<CoinValue>().value);
+                Destroy(collision.gameObject);
+                StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
+            }
         }
     }
 
@@ -318,5 +357,24 @@ public class PlayerMovement : MonoBehaviour
 
         uncontrollable = false;
         Camera.main.GetComponent<CameraController>().ResumeEnemies();
+    }
+
+    IEnumerator PickSmallItem(Sprite sprite)
+    {
+        pickSmallItem.sprite = sprite;
+        pickSmallItem.enabled = true;
+        yield return new WaitForSeconds(0.5f);
+        pickSmallItem.enabled = false;
+    }
+
+    public void PausePlayer()
+    {
+        uncontrollable = true;
+        Invoke("UnpausePlayer", 0.1f);
+    }
+
+    public void UnpausePlayer()
+    {
+        uncontrollable = false;
     }
 }

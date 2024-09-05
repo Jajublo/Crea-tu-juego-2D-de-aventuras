@@ -11,7 +11,7 @@ public class NPCBasicDialog : BasicInteraction
     GameManager gameManager;
     NPCRandomPatrol randomPatrol;
 
-    GameObject dialogAnimation;
+    public GameObject dialogAnimation;
 
     private void Start()
     {

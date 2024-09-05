@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     public Image[] playerKeys;
     public int currentKeys;
 
+    public int coins;
+    public TextMeshProUGUI coinsText;
+
     public GameObject dialogBox;
     public TextMeshProUGUI dialogText;
 
@@ -24,6 +27,10 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI npcDialogText;
     public TextMeshProUGUI npcName;
     public Image npcImage;
+
+    public GameObject choiceButtons;
+    public Button yesButton;
+    public Button noButton;
 
     private bool paused;
     public GameObject pauseMenu;
@@ -39,6 +46,9 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI weaponDescriptionText;
     public string[] weaponDescription;
 
+    public GameObject[] spawnItems;
+    public float[] spawnItemsChance;
+
     private void Awake()
     {
         itemDisplay = FindObjectOfType<ItemDisplay>();
@@ -48,6 +58,7 @@ public class GameManager : MonoBehaviour
         currentKeys = DataInstance.Instance.currentKeys;
         selectedWeapon = DataInstance.Instance.selectedWeapon;
         selectedWeaponAmmo = DataInstance.Instance.selectedWeaponAmmo;
+        coins = DataInstance.Instance.coins;
         ResumeGame();
     }
 
@@ -57,6 +68,7 @@ public class GameManager : MonoBehaviour
         hp = Mathf.Clamp(hp, 1, currentHearts * 4);
         UpdateCurrentHearts();
         UpdateCurrentKeys(0);
+        UpdateCoins(0);
         SelectWeapon(selectedWeapon);
     }
 
@@ -79,7 +91,6 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 0;
             pauseMenu.SetActive(true);
-            pauseMenu.GetComponentInChildren<Button>().Select();
         }
         else
         {
@@ -112,14 +123,14 @@ public class GameManager : MonoBehaviour
 
     public void PauseButtonGame()
     {
-        if (itemsMenu.activeSelf) return;
+        if (itemsMenu.activeSelf || dialogBox.activeSelf || npcDialogBox.activeSelf) return;
         paused = !paused;
         PauseGame();
     }
 
     public void OpenInvButton()
     {
-        if (pauseMenu.activeSelf) return;
+        if (pauseMenu.activeSelf || dialogBox.activeSelf || npcDialogBox.activeSelf) return;
         paused = !paused;
         OpenInv();
     }
@@ -154,6 +165,12 @@ public class GameManager : MonoBehaviour
     {
         weaponNameText.text = weaponName[index];
         weaponDescriptionText.text = weaponDescription[index];
+    }
+
+    public void UpdateCoins(int amount)
+    {
+        coins = Mathf.Clamp(coins + amount, 0, 99);
+        coinsText.text = coins.ToString();
     }
 
     public bool CanHeal()
@@ -247,5 +264,43 @@ public class GameManager : MonoBehaviour
         npcName.text = "";
         npcImage.sprite = null;
         Time.timeScale = 1;
+    }
+
+    public void ShowChoiceButtons(int price)
+    {
+        if (coins >= price)
+        {
+            yesButton.interactable = true;
+        }
+        else
+        {
+            yesButton.interactable = false;
+        }
+        noButton.onClick.RemoveAllListeners();
+        yesButton.onClick.RemoveAllListeners();
+        choiceButtons.SetActive(true);
+        noButton.Select();
+    }
+
+    public void HideChoiceButtons()
+    {
+        choiceButtons.SetActive(false);
+    }
+
+    public void SpawnItem(Vector2 enemyPos)
+    {
+        float x = Random.Range(0f, 100f);
+        float sum = 0f;
+
+        for (int i = 0; i < spawnItemsChance.Length; i++)
+        {
+            sum += spawnItemsChance[i];
+
+            if(x < sum)
+            {
+                Instantiate(spawnItems[i], enemyPos, spawnItems[i].transform.rotation);
+                break;
+            }
+        }
     }
 }

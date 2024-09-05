@@ -12,6 +12,7 @@ public class DataInstance : MonoBehaviour
     public int currentHearts;
     public int hp;
     public int currentKeys;
+    public int coins;
     public int selectedWeapon;
     public int[] selectedWeaponAmmo;
 
@@ -56,6 +57,7 @@ public class DataInstance : MonoBehaviour
         currentHearts = gm.currentHearts;
         hp = gm.hp;
         currentKeys = gm.currentKeys;
+        coins = gm.coins;
         selectedWeapon = gm.selectedWeapon;
         selectedWeaponAmmo = gm.selectedWeaponAmmo;
 
@@ -67,6 +69,7 @@ public class DataInstance : MonoBehaviour
         saveData.currentHearts = currentHearts;
         saveData.hp = hp;
         saveData.currentKeys = currentKeys;
+        saveData.coins = coins;
         saveData.selectedWeapon = selectedWeapon;
         saveData.selectedWeaponAmmo = selectedWeaponAmmo;
 
@@ -95,7 +98,7 @@ public class DataInstance : MonoBehaviour
 
     public void LoadData()
     {
-        DeleteSaveData();
+        //DeleteSaveData();
         if(!PlayerPrefs.HasKey(SaveDataKey)) CreateSaveData();
 
         string json = PlayerPrefs.GetString(SaveDataKey);
@@ -104,6 +107,7 @@ public class DataInstance : MonoBehaviour
         currentHearts = saveData.currentHearts;
         currentKeys = saveData.currentKeys;
         hp = saveData.hp;
+        coins = saveData.coins;
         selectedWeapon = saveData.selectedWeapon;
         selectedWeaponAmmo = saveData.selectedWeaponAmmo;
 
@@ -134,6 +138,7 @@ public class DataInstance : MonoBehaviour
         saveData.currentHearts = 3;
         saveData.hp = 12;
         saveData.currentKeys = 0;
+        saveData.coins = 10;
         saveData.selectedWeaponAmmo = new int[] { 20, 19, 5 };
         saveData.sceneData = new List<SceneData>();
 
@@ -154,6 +159,7 @@ public class SaveData
     public int currentHearts;
     public int hp;
     public int currentKeys;
+    public int coins;
     public int selectedWeapon;
     public int[] selectedWeaponAmmo;
     public List<SceneData> sceneData;

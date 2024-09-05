@@ -64,6 +64,10 @@ public class InteractionDisplay : MonoBehaviour
                 ChangeInteractionIcon(4); // Open
             }
         }
+        else if (basicInteraction is BuyItem buy)
+        {
+            ChangeInteractionIcon(5);
+        }
     }
 
     private void ChangeInteractionIcon(int x)
