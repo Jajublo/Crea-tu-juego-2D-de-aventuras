@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -52,7 +53,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         itemDisplay = FindObjectOfType<ItemDisplay>();
-        DataInstance.Instance.LoadData();
+        DataInstance.Instance.LoadDataSlot();
         currentHearts = DataInstance.Instance.currentHearts;
         hp = DataInstance.Instance.hp;
         currentKeys = DataInstance.Instance.currentKeys;
@@ -83,6 +84,11 @@ public class GameManager : MonoBehaviour
         {
             OpenInvButton();
         }
+    }
+
+    public void Exit()
+    {
+        SceneManager.LoadScene(0);
     }
 
     private void PauseGame()

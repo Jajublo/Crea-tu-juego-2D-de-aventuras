@@ -13,7 +13,7 @@ public class SceneLoader : MonoBehaviour
     {
         if(collision.CompareTag("Player"))
         {
-            DataInstance.Instance.SetPlayerPosition(playerDestination);
+            DataInstance.Instance.SetPlayerPosition(playerDestination, sceneIndex);
             SceneManager.LoadScene(sceneIndex);
         }
     }
