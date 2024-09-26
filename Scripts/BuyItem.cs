@@ -15,10 +15,23 @@ public class BuyItem : BasicInteraction
 
     public GameObject dialogAnimation;
 
+    public bool unlockBow;
+    public bool unlockWand;
+
     private void Start()
     {
         gameManager = FindObjectOfType<GameManager>();
         dialogAnimation = transform.GetChild(0).gameObject;
+
+        if (unlockBow)
+        {
+            gameObject.SetActive(DataInstance.Instance.unlockBow);
+        }
+
+        if (unlockWand)
+        {
+            gameObject.SetActive(DataInstance.Instance.unlockWand);
+        }
     }
 
     public override bool CanInteract(Vector2 playerFacing, Vector2 playerPos)

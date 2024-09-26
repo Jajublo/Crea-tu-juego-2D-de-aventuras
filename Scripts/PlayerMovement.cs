@@ -35,6 +35,7 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         transform.position = DataInstance.Instance.playerPosition;
+        transform.position = new Vector2(22,-3);
     }
 
     private void Start()
@@ -271,6 +272,7 @@ public class PlayerMovement : MonoBehaviour
         {
             if (gameManager.UpdateWeaponAmmo(0, 1))
             {
+                DataInstance.Instance.UnlockBomb();
                 Destroy(collision.gameObject);
                 StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
             }
@@ -299,6 +301,28 @@ public class PlayerMovement : MonoBehaviour
                 Destroy(collision.gameObject);
                 StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
             }
+        }
+        if (collision.CompareTag("Enemy") && !invincible)
+        {
+            gameManager.UpdateCurrentHP(-2);
+            StartCoroutine(Invincibility());
+            StartCoroutine(Knockback(collision.transform.position));
+        }
+        if (collision.CompareTag("Bow"))
+        {
+            Destroy(collision.gameObject);
+            DataInstance.Instance.UnlockBow();
+            pickItem.sprite = collision.GetComponent<SpriteRenderer>().sprite;
+            StartCoroutine(PickItem());
+            DataInstance.Instance.SaveSceneData(collision.name);
+        }
+        if (collision.CompareTag("MagicWand"))
+        {
+            Destroy(collision.gameObject);
+            DataInstance.Instance.UnlockWand();
+            pickItem.sprite = collision.GetComponent<SpriteRenderer>().sprite;
+            StartCoroutine(PickItem());
+            DataInstance.Instance.SaveSceneData(collision.name);
         }
     }
 

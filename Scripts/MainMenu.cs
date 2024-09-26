@@ -44,18 +44,21 @@ public class MainMenu : MonoBehaviour
     {
         DataInstance.Instance.LoadData();
         SetSaveFiles();
+        mainButtons.GetComponentInChildren<Button>().Select();
     }
 
     public void SelectSaveData()
     {
         mainButtons.SetActive(false);
         saveSlots.SetActive(true);
+        saveSlots.GetComponentInChildren<Button>().Select();
     }
 
     public void Back()
     {
         mainButtons.SetActive(true);
         saveSlots.SetActive(false);
+        mainButtons.GetComponentInChildren<Button>().Select();
     }
 
     public void Play(int index)

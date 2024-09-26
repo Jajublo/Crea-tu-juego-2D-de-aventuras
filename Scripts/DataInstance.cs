@@ -56,6 +56,7 @@ public class DataInstance : MonoBehaviour
 
     public void LoadData()
     {
+        Delete();
         if(!PlayerPrefs.HasKey(SaveDataKey)) CreateGameData();
 
         string json = PlayerPrefs.GetString(SaveDataKey);
@@ -73,6 +74,35 @@ public class DataInstance : MonoBehaviour
         playerPosition = playerPos;
         this.sceneIndex = sceneIndex;
 
+        SavePlayerData();
+    }
+
+    public void UnlockBomb()
+    {
+        if (!unlockBomb)
+        {
+            unlockBomb = true;
+
+            SavePlayerData();
+        }
+    }
+
+    public void UnlockBow()
+    {
+        unlockBow = true;
+
+        SavePlayerData();
+    }
+
+    public void UnlockWand()
+    {
+        unlockWand = true;
+
+        SavePlayerData();
+    }
+
+    private void SavePlayerData()
+    {
         GameManager gm = FindObjectOfType<GameManager>();
 
         currentHearts = gm.currentHearts;
@@ -82,11 +112,6 @@ public class DataInstance : MonoBehaviour
         selectedWeapon = gm.selectedWeapon;
         selectedWeaponAmmo = gm.selectedWeaponAmmo;
 
-        SavePlayerData();
-    }
-
-    private void SavePlayerData()
-    {
         saveData.playerPosition = playerPosition;
         saveData.sceneIndex = sceneIndex;
 
@@ -156,6 +181,7 @@ public class DataInstance : MonoBehaviour
                     {
                         if (gameObject.GetComponent<LockedDoor>()) gameObject.GetComponent<LockedDoor>().OpenedDoor();
                         else if (gameObject.GetComponent<Chest>()) gameObject.GetComponent<Chest>().OpenedChest();
+                        else if (gameObject.GetComponent<StepButton>()) gameObject.GetComponent<StepButton>().Activate();
                         else gameObject.SetActive(false);
                     }
                 }

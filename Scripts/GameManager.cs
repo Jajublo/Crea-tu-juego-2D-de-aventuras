@@ -40,6 +40,9 @@ public class GameManager : MonoBehaviour
     public int[] selectedWeaponAmmo;
     public GameObject itemsMenu;
     private int maxMana = 5;
+    public GameObject bombButton;
+    public GameObject bowButton;
+    public GameObject wandButton;
 
     private ItemDisplay itemDisplay;
     public TextMeshProUGUI weaponNameText;
@@ -52,6 +55,11 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        //--------------------------------------
+        DataInstance.Instance.LoadData();
+        DataInstance.Instance.SetSlotData(0);
+        //--------------------------------------
+
         itemDisplay = FindObjectOfType<ItemDisplay>();
         DataInstance.Instance.LoadDataSlot();
         currentHearts = DataInstance.Instance.currentHearts;
@@ -111,8 +119,49 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 0;
             itemsMenu.SetActive(true);
-            itemsMenu.GetComponentsInChildren<Button>()[selectedWeapon].Select();
-            ChangeWeaponText(selectedWeapon);
+
+            bool bomb = DataInstance.Instance.unlockBomb;
+            bool bow = DataInstance.Instance.unlockBow;
+            bool wand = DataInstance.Instance.unlockWand;
+
+            bombButton.SetActive(bomb);
+            bowButton.SetActive(bow);
+            wandButton.SetActive(wand);
+
+            if (bomb && selectedWeapon == 0)
+            {
+                bombButton.GetComponent<Button>().Select();
+                ChangeWeaponText(selectedWeapon);
+            }
+            else if(bow && selectedWeapon ==1)
+            {
+                bowButton.GetComponent<Button>().Select();
+                ChangeWeaponText(selectedWeapon);
+            }
+            else if(wand && selectedWeapon == 2)
+            {
+                wandButton.GetComponent<Button>().Select();
+                ChangeWeaponText(selectedWeapon);
+            }
+            else if (bomb)
+            {
+                bombButton.GetComponent<Button>().Select();
+                ChangeWeaponText(0);
+            }
+            else if (bow)
+            {
+                bowButton.GetComponent<Button>().Select();
+                ChangeWeaponText(1);
+            }
+            else if (wand)
+            {
+                wandButton.GetComponent<Button>().Select();
+                ChangeWeaponText(2);
+            }
+            else
+            {
+                ChangeWeaponText(-1);
+            }
         }
         else
         {
@@ -169,8 +218,16 @@ public class GameManager : MonoBehaviour
 
     public void ChangeWeaponText(int index)
     {
-        weaponNameText.text = weaponName[index];
-        weaponDescriptionText.text = weaponDescription[index];
+        if (index < 0)
+        {
+            weaponNameText.text = "";
+            weaponDescriptionText.text = "";
+        }
+        else
+        {
+            weaponNameText.text = weaponName[index];
+            weaponDescriptionText.text = weaponDescription[index];
+        }
     }
 
     public void UpdateCoins(int amount)
@@ -304,6 +361,11 @@ public class GameManager : MonoBehaviour
 
             if(x < sum)
             {
+                if(spawnItems[i].name == "BowAmmo" && !DataInstance.Instance.unlockBow 
+                    || spawnItems[i].name == "MagicAmmo" && !DataInstance.Instance.unlockWand)
+                {
+                    break;
+                }
                 Instantiate(spawnItems[i], enemyPos, spawnItems[i].transform.rotation);
                 break;
             }

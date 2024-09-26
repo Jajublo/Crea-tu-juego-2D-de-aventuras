@@ -20,21 +20,39 @@ public class ItemDisplay : MonoBehaviour
     {
         image = GetComponent<Image>();
         rectTransform = GetComponent<RectTransform>();
+        manaBar.transform.parent.gameObject.SetActive(false);
     }
 
     public void ChangeItemIcon(int x, int ammo, int maxMana)
     {
-        image.sprite = itemsSprites[x];
-        rectTransform.sizeDelta = itemsSpritesDimensions[x];
-        rectTransform.rotation = Quaternion.Euler(0, 0, itemsSpritesRotation[x]);
-        if(x == 2)
+        bool bomb = DataInstance.Instance.unlockBomb;
+        bool bow = DataInstance.Instance.unlockBow;
+        bool wand = DataInstance.Instance.unlockWand;
+
+        if(wand)
         {
-            manaBar.fillAmount = ammo / (maxMana * 1f);
-            ammoText.text = "";
+            manaBar.transform.parent.gameObject.SetActive(true);
+        }
+
+        if (bomb && x == 0 || bow && x == 1 || wand && x == 2)
+        {
+            image.sprite = itemsSprites[x];
+            rectTransform.sizeDelta = itemsSpritesDimensions[x];
+            rectTransform.rotation = Quaternion.Euler(0, 0, itemsSpritesRotation[x]);
+            if (x == 2)
+            {
+                manaBar.fillAmount = ammo / (maxMana * 1f);
+                ammoText.text = "";
+            }
+            else
+            {
+                ammoText.text = ammo.ToString();
+            }
         }
         else
         {
-            ammoText.text = ammo.ToString();
+            ammoText.text = "";
+            rectTransform.sizeDelta = Vector2.zero;
         }
     }
 }
