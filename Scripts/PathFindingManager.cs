@@ -39,6 +39,12 @@ public class PathFindingManager : MonoBehaviour
         StartCoroutine(FindPath(callback, origin, end, grid));
     }
 
+    public void FindNextStepRangeCoroutine(Action<List<Node>> callback, Vector2 origin, Vector2 end, Node[][] grid)
+    {
+        StopCoroutine(FindRangePath(callback, origin, end, grid));
+        StartCoroutine(FindRangePath(callback, origin, end, grid));
+    }
+
     private IEnumerator FindPath(Action<List<Node>> callback, Vector2 originPosition, Vector2 endPositon, Node[][] grid)
     {
         Node[][] copy = CopyGrid(grid);
@@ -48,6 +54,40 @@ public class PathFindingManager : MonoBehaviour
 
         // Si no existe camino abortamos
         if(end == origin || end.isObstacle)
+        {
+            callback.Invoke(new List<Node>());
+            yield return null;
+        }
+        else
+        {
+            // Evitamos usar el nodo de inicio en la operaciones
+            copy[(int)origin.gridPosition.x][(int)origin.gridPosition.y].visited = true;
+            List<Node> firstList = new List<Node> { origin };
+
+            List<Node> nodesPath = FindPathRecursive(new List<Node>(), firstList, end, copy);
+
+            // Gizmos
+            this.origin = origin;
+            this.end = end;
+            this.nodesPath = nodesPath;
+            this.grid = copy;
+
+            callback.Invoke(nodesPath);
+
+            yield return null;
+        }
+    }
+
+    private IEnumerator FindRangePath(Action<List<Node>> callback, Vector2 originPosition, Vector2 endPositon, Node[][] grid)
+    {
+        Node[][] copy = CopyGrid(grid);
+
+        Node player = NodeFromWorldPoint(endPositon, copy);
+        Node origin = NodeFromWorldPoint(originPosition, copy);
+        Node end = EndNodeForRanged(origin, player, copy);
+
+        // Si no existe camino abortamos
+        if (end == origin || end.isObstacle)
         {
             callback.Invoke(new List<Node>());
             yield return null;
@@ -128,8 +168,11 @@ public class PathFindingManager : MonoBehaviour
         int x = Mathf.RoundToInt(((worldPosition.x - width / 2) % width) - offset);
         int y = Mathf.RoundToInt(((worldPosition.y - height / 2) % height) - offset);
 
-        Debug.Log("WorldPosition: " + worldPosition + "x: " + x + "y: " + y);
-        Debug.Log("GridLengthX: " + grid.Length + "GridLengthX: " + grid[0].Length);
+        if (x < 0) x = width + x;
+        if (y < 0) y = height + y;
+
+        //Debug.Log("WorldPosition: " + worldPosition + "x: " + x + "y: " + y);
+        //Debug.Log("GridLengthX: " + grid.Length + "GridLengthX: " + grid[0].Length);
 
         return grid[x][y];
     }
@@ -208,6 +251,145 @@ public class PathFindingManager : MonoBehaviour
         return false;
     }
 
+    private Node EndNodeForRanged(Node origin, Node player, Node[][] grid)
+    {
+        int destinationX = (int)player.gridPosition.x;
+        int destinationY = (int)player.gridPosition.y;        
+        
+        int originX = (int)origin.gridPosition.x;
+        int originY = (int)origin.gridPosition.y;
+
+        int emptyNodesTop;
+        int emptyNodesBottom;
+        int emptyNodesRight;
+        int emptyNodesLeft;
+
+        if (destinationY > originY)
+        {
+            emptyNodesTop = EmptyColumnPositive(destinationX, destinationY, Mathf.Clamp(destinationY + 3, 1, height - 1), grid);
+            emptyNodesBottom = EmptyColumnNegative(destinationX, destinationY, destinationY - originY < 3 ? Mathf.Clamp(destinationY - 3, 1, height - 1) : originY, grid);
+        }
+        else
+        {
+            emptyNodesTop = EmptyColumnPositive(destinationX, destinationY, originY - destinationY < 3 ? Mathf.Clamp(destinationY + 3, 1, height - 1) : originY, grid);
+            emptyNodesBottom = EmptyColumnNegative(destinationX, destinationY, Mathf.Clamp(destinationY - 3, 1, height - 1), grid);
+        }
+        if (destinationX > originX)
+        {
+            emptyNodesRight = EmptyRowPositive(destinationY, destinationX, Mathf.Clamp(destinationX + 3, 1, width - 1), grid);
+            emptyNodesLeft = EmptyRowNegative(destinationY, destinationX, destinationX - originX < 3 ? Mathf.Clamp(destinationX - 3, 1, width - 1) : originX, grid);
+        }
+        else
+        {
+            emptyNodesRight = EmptyRowPositive(destinationY, destinationX, originX - destinationX  < 3 ? Mathf.Clamp(destinationX + 3, 1, width - 1) : originX, grid);
+            emptyNodesLeft = EmptyRowNegative(destinationY, destinationX, Mathf.Clamp(destinationX - 3, 1, width - 1), grid);
+        }
+
+        Vector2 target = new Vector2(originX, originY);
+        Vector2 destination = new Vector2(destinationX, destinationY);
+
+        Vector2 top = new Vector2(destinationX, destinationY + emptyNodesTop);
+        Vector2 bottom = new Vector2(destinationX, destinationY - emptyNodesBottom);
+        Vector2 right = new Vector2(destinationX + emptyNodesRight, destinationY);
+        Vector2 left = new Vector2(destinationX - emptyNodesLeft, destinationY);
+
+        // Crea una lista de tuplas que almacena el vector y su nombre
+        List<(Vector2 vector, string name)> vectors = new List<(Vector2, string)>()
+        {
+            (top, "top"), (bottom, "bottom"), (right, "right"), (left, "left")
+        };
+
+        // Listas separadas para los vectores más lejos o más cerca de 3 unidades de "destination"
+        List<(Vector2 vector, string name)> farFromDestination = new List<(Vector2, string)>();
+        List<(Vector2 vector, string name)> closeToDestination = new List<(Vector2, string)>();
+
+        // Divide los vectores en dos listas basadas en la distancia a "destination"
+        foreach (var v in vectors)
+        {
+            if (Vector2.Distance(v.vector, destination) >= 3)
+            {
+                farFromDestination.Add(v);
+            }
+            else
+            {
+                closeToDestination.Add(v);
+            }
+        }
+
+        // Si hay al menos un vector a más de 3 unidades de "destination", ordenamos ese grupo
+        if (farFromDestination.Count > 0)
+        {
+            farFromDestination.Sort((a, b) => Vector2.Distance(target, a.vector).CompareTo(Vector2.Distance(target, b.vector)));
+            foreach (var v in farFromDestination)
+            {
+                return grid[(int)v.vector.x][(int)v.vector.y];
+            }
+        }
+        else // Si no, ordenamos todos los vectores por su cercanía a "origin"
+        {
+            vectors.Sort((a, b) => Vector2.Distance(target, a.vector).CompareTo(Vector2.Distance(target, b.vector)));
+            foreach (var v in vectors)
+            {
+                return grid[(int)v.vector.x][(int)v.vector.y];
+            }
+        }
+
+        Debug.Log(destinationX + " " + destinationY);
+
+        return grid[destinationX][destinationY];
+    }
+
+    private int EmptyRowPositive(int y, int destination, int enemy, Node[][] grid)
+    {
+        for (int i = destination + 1; i <= enemy; i++)
+        {
+            if (grid[i][y].isObstacle)
+            {
+                return i - destination - 1;
+            }
+        }
+
+        return enemy - destination;
+    }
+
+    private int EmptyRowNegative(int y, int destination, int enemy, Node[][] grid)
+    {
+        for (int i = destination - 1; i >= enemy; i--)
+        {
+            if (grid[i][y].isObstacle)
+            {
+                return destination - i - 1;
+            }
+        }
+
+        return destination - enemy;
+    }
+
+    private int EmptyColumnPositive(int x, int destination, int enemy, Node[][] grid)
+    {
+        for (int i = destination + 1; i <= enemy; i++)
+        {
+            if (grid[x][i].isObstacle)
+            {
+                return i - destination - 1;
+            }
+        }
+
+        return enemy - destination;
+    }
+
+    private int EmptyColumnNegative(int x, int destination, int enemy, Node[][] grid)
+    {
+        for (int i = destination - 1; i >= enemy; i--)
+        {
+            if (grid[x][i].isObstacle)
+            {
+                return destination - i - 1;
+            }
+        }
+
+        return destination - enemy;
+    }
 
     // Pinta el camino y la cuadricula
     private void OnDrawGizmos()

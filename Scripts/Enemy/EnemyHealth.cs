@@ -31,7 +31,7 @@ public class EnemyHealth : MonoBehaviour
         hp = maxHp;
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    public void OnTriggerEnter2D(Collider2D collision)
     {
         if ((collision.CompareTag("Weapon") || collision.CompareTag("Explosion") || collision.CompareTag("Fire"))
             && !invincible)

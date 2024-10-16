@@ -2,10 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ChasingEnemy : EnemyHealth
+public class WaitAndChaseEnemy : EnemyHealth
 {
-    [Header("ChasingEnemy parameters")]
+    [Header("Global parameters")]
+    Animator animator;
+    Vector2 direction;
+    public bool chasing;
+
+    [Header("RandomPatrol parameters")]
     public float speed;
+    public float minPatrolTime;
+    public float maxPatrolTime;
+    public float minWaitTime;
+    public float maxWaitTime;
+
+    [Header("ChasingEnemy parameters")]
+    public float chasingSpeed;
 
     List<Node> path;
     Vector3 destination = Vector3.zero;
@@ -14,25 +26,53 @@ public class ChasingEnemy : EnemyHealth
     PlayerMovement player;
     public Node[][] grid;
 
-    Animator animator;
-    Vector2 direction;
-
     public override void Awake()
     {
         base.Awake();
         animator = GetComponent<Animator>();
 
+        direction = RandomDirection();
         animator.SetFloat("Horizontal", direction.x);
         animator.SetFloat("Vertical", direction.y);
 
         player = FindObjectOfType<PlayerMovement>();
     }
 
+    IEnumerator Patrol()
+    {
+        direction = RandomDirection();
+        Animations();
+        yield return new WaitForSeconds(Random.Range(minPatrolTime, maxPatrolTime));
+
+        direction = Vector2.zero;
+        Animations();
+        yield return new WaitForSeconds(Random.Range(minWaitTime, maxWaitTime));
+
+        StartCoroutine(Patrol());
+    }
+
+    private Vector2 RandomDirection()
+    {
+        int x = Random.Range(0, 8);
+
+        return x switch
+        {
+            0 => Vector2.up,
+            1 => Vector2.down,
+            2 => Vector2.left,
+            3 => Vector2.right,
+            4 => new Vector2(1, 1),
+            5 => new Vector2(1, -1),
+            6 => new Vector2(-1, 1),
+            _ => new Vector2(-1, -1),
+        };
+    }
+
     private void Update()
     {
-        if (!destinationReached)
+        if (!destinationReached && chasing)
         {
-            transform.position = Vector3.MoveTowards(transform.position, destination, speed * Time.deltaTime);
+            transform.position = Vector3.MoveTowards(transform.position, destination, chasingSpeed * Time.deltaTime);
 
             if (transform.position == destination)
             {
@@ -44,10 +84,13 @@ public class ChasingEnemy : EnemyHealth
 
     private void FindNextStep()
     {
+        if (!chasing) return;
+
         PathFindingManager.Instance.FindNextStepCoroutine(
-            MoveToNextStep, transform.position, player.transform.position, grid);   
+            MoveToNextStep, transform.position, player.transform.position, grid);
+
         CancelInvoke("FindNextStep");
-        Invoke("FindNextStep", 0.5f);
+        Invoke("FindNextStep", 0.5f);     
     }
 
     private void MoveToNextStep(List<Node> path)
@@ -130,19 +173,54 @@ public class ChasingEnemy : EnemyHealth
             animator.Play("Run");
         }
         else animator.Play("Idle");
+
+        if (!chasing)
+            rigidBody.velocity = direction.normalized * speed;
     }
 
     public override void StopBehaviour()
     {
-        destination = Vector3.zero;
+        if (!chasing)
+        {
+            StopAllCoroutines();
+        }
+        else
+        {
+            destination = Vector3.zero;
+            destinationReached = true;
+            CancelInvoke("FindNextStep");
+        }
         direction = Vector2.zero;
         Animations();
-        destinationReached = true;
-        CancelInvoke("FindNextStep");
     }
 
     public override void ContinueBehaviour()
     {
-        FindNextStep();
+        if (!chasing)
+        {
+            StartCoroutine(Patrol());
+        }
+        else
+        {
+            FindNextStep();
+        }
+    }
+
+    public override void ResetPosition()
+    {
+        base.ResetPosition();
+        chasing = false;
+    }
+
+    private new void OnTriggerEnter2D(Collider2D collision)
+    {
+        base.OnTriggerEnter2D(collision);
+
+        if (collision.CompareTag("Player"))
+        {
+            StopBehaviour();
+            chasing = true;
+            ContinueBehaviour();
+        }
     }
 }

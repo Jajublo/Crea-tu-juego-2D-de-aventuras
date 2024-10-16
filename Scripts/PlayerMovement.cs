@@ -302,7 +302,7 @@ public class PlayerMovement : MonoBehaviour
                 StartCoroutine(PickSmallItem(collision.GetComponent<SpriteRenderer>().sprite));
             }
         }
-        if (collision.CompareTag("Enemy") && !invincible)
+        if (collision.CompareTag("Trap") && !invincible)
         {
             gameManager.UpdateCurrentHP(-2);
             StartCoroutine(Invincibility());

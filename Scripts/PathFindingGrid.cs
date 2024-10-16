@@ -40,6 +40,20 @@ public class PathFindingGrid: MonoBehaviour
                 enemy.grid = grid;
             }
         }
+        foreach (WaitAndChaseEnemy enemy in GetComponentsInChildren<WaitAndChaseEnemy>())
+        {
+            if (enemy != null)
+            {
+                enemy.grid = grid;
+            }
+        }
+        foreach (EnemyRanged enemy in GetComponentsInChildren<EnemyRanged>())
+        {
+            if (enemy != null)
+            {
+                enemy.grid = grid;
+            }
+        }
     }
 
     private void OnDrawGizmosSelected()
