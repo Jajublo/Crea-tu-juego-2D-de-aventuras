@@ -9,7 +9,7 @@ public class PathFindingManager : MonoBehaviour
     public int height = 12;
     public float offset = 0.5f;
 
-    int iterations = 1;
+    //int iterations = 1;
 
     // Gizmos
     Node[][] grid;

@@ -64,9 +64,13 @@ public class InteractionDisplay : MonoBehaviour
                 ChangeInteractionIcon(4); // Open
             }
         }
-        else if (basicInteraction is BuyItem buy)
+        else if (basicInteraction is BuyItem buy) // Buy item
         {
             ChangeInteractionIcon(5);
+        }
+        else if (basicInteraction is SavePoint save) // Save game
+        {
+            ChangeInteractionIcon(1);
         }
     }
 

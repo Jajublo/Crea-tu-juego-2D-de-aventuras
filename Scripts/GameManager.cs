@@ -53,6 +53,13 @@ public class GameManager : MonoBehaviour
     public GameObject[] spawnItems;
     public float[] spawnItemsChance;
 
+    public GameObject mapMenu;
+    public GameObject tpMenu;
+    public GameObject mapCamera;
+    public Vector2[] TpList;
+    public GameObject tp1;
+    public GameObject tp2;
+
     private void Awake()
     {
         //--------------------------------------
@@ -85,7 +92,7 @@ public class GameManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if(itemsMenu.activeSelf) OpenInvButton();
+            if(itemsMenu.activeSelf || mapMenu.activeSelf) OpenInvButton();
             else PauseButtonGame();
         }
         else if (Input.GetKeyDown(KeyCode.Tab))
@@ -110,6 +117,9 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 1;
             pauseMenu.SetActive(false);
+            mapCamera.SetActive(false);
+            tpMenu.SetActive(false);
+            itemsMenu.SetActive(false);
         }
     }
 
@@ -167,7 +177,30 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 1;
             itemsMenu.SetActive(false);
+            mapMenu.SetActive(false);
+            mapCamera.SetActive(false);
         }
+    }
+
+    public void SwitchMapMenu()
+    {
+        mapCamera.SetActive(true);
+        mapMenu.SetActive(true);
+        itemsMenu.SetActive(false);
+    }
+
+    public void SwitchTpMenu()
+    {
+        mapCamera.SetActive(true);
+        tpMenu.SetActive(true);
+        itemsMenu.SetActive(false);
+    }
+
+    public void SwitchInvMenu()
+    {
+        mapCamera.SetActive(false);
+        mapMenu.SetActive(false);
+        itemsMenu.SetActive(true);
     }
 
     public void ResumeGame()
@@ -178,7 +211,7 @@ public class GameManager : MonoBehaviour
 
     public void PauseButtonGame()
     {
-        if (itemsMenu.activeSelf || dialogBox.activeSelf || npcDialogBox.activeSelf) return;
+        if (itemsMenu.activeSelf || mapMenu.activeSelf || dialogBox.activeSelf || npcDialogBox.activeSelf) return;
         paused = !paused;
         PauseGame();
     }
@@ -369,6 +402,25 @@ public class GameManager : MonoBehaviour
                 Instantiate(spawnItems[i], enemyPos, spawnItems[i].transform.rotation);
                 break;
             }
+        }
+    }
+
+    public void Tp(int x)
+    {
+        DataInstance.Instance.SetPlayerPosition(TpList[x], SceneManager.GetActiveScene().buildIndex);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void ActiveTp(Vector2 scenePosition)
+    {
+        if (scenePosition == new Vector2(22, -24))
+        {
+            tp1.SetActive(true);
+        }
+        else if (scenePosition == new Vector2(22, 24))
+        {
+            tp2.SetActive(true);
         }
     }
 }

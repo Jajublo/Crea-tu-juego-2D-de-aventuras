@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class EntitySceneControl : MonoBehaviour
 {
@@ -33,6 +34,23 @@ public class EntitySceneControl : MonoBehaviour
         foreach (NPCRandomPatrol npc in NPCArray)
         {
             npc.ContinueBehaviour();
+        }
+
+        if (scene.GetComponent<TilemapRenderer>())
+        {
+            scene.GetComponent<TilemapRenderer>().enabled = true;
+            DataInstance.Instance.SaveMapData(scenePosition);
+            FindObjectOfType<GameManager>().ActiveTp(scenePosition);
+        }
+    }
+
+    public void ActiveMap(Vector3 scenePosition)
+    {
+        GameObject scene = FindSceneByPosition(scenePosition);
+
+        if (scene.GetComponent<TilemapRenderer>())
+        {
+            scene.GetComponent<TilemapRenderer>().enabled = true;
         }
     }
 

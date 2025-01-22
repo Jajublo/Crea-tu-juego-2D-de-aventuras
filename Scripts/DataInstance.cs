@@ -56,7 +56,7 @@ public class DataInstance : MonoBehaviour
 
     public void LoadData()
     {
-        Delete();
+        // Delete();
         if(!PlayerPrefs.HasKey(SaveDataKey)) CreateGameData();
 
         string json = PlayerPrefs.GetString(SaveDataKey);
@@ -134,16 +134,36 @@ public class DataInstance : MonoBehaviour
 
     public void SaveSceneData(string name)
     {
-        if(sceneData == null || sceneData.sceneName != SceneManager.GetActiveScene().name)
+        if (sceneData == null || sceneData.sceneName != SceneManager.GetActiveScene().name)
         {
             sceneData = new SceneData();
             sceneData.sceneName = SceneManager.GetActiveScene().name;
             sceneData.objectsName = new List<string>();
+            sceneData.mapData = new List<Vector3>();
         }
 
         if (saveData.sceneData.Contains(sceneData)) saveData.sceneData.Remove(sceneData);
 
         sceneData.objectsName.Add(name);
+
+        saveData.sceneData.Add(sceneData);
+
+        SavePlayerData();
+    }
+
+    public void SaveMapData(Vector3 room)
+    {
+        if (sceneData == null || sceneData.sceneName != SceneManager.GetActiveScene().name)
+        {
+            sceneData = new SceneData();
+            sceneData.sceneName = SceneManager.GetActiveScene().name;
+            sceneData.objectsName = new List<string>();
+            sceneData.mapData = new List<Vector3>();
+        }
+
+        if (saveData.sceneData.Contains(sceneData)) saveData.sceneData.Remove(sceneData);
+
+        sceneData.mapData.Add(room);
 
         saveData.sceneData.Add(sceneData);
 
@@ -185,6 +205,18 @@ public class DataInstance : MonoBehaviour
                         else gameObject.SetActive(false);
                     }
                 }
+
+                if (FindObjectOfType<EntitySceneControl>())
+                {
+                    EntitySceneControl entitySceneControl = FindObjectOfType<EntitySceneControl>();
+                    GameManager gameManager= FindObjectOfType<GameManager>();
+
+                    foreach (Vector3 room in sceneData.mapData)
+                    {
+                        entitySceneControl.ActiveMap(room);
+                        gameManager.ActiveTp(room);
+                    }
+                }          
             }
         }
     }
@@ -270,4 +302,5 @@ public class SceneData
 {
     public string sceneName;
     public List<string> objectsName;
+    public List<Vector3> mapData;
 }

@@ -9,6 +9,8 @@ public class PlayerMovement : MonoBehaviour
     public SpriteRenderer pickSmallItem;
     Vector2 direction;
 
+    public RuntimeAnimatorController[] playerControllers;
+
     Rigidbody2D rigidBody;
     Animator animator;
     SpriteRenderer spriteRenderer;
@@ -35,7 +37,6 @@ public class PlayerMovement : MonoBehaviour
     private void Awake()
     {
         transform.position = DataInstance.Instance.playerPosition;
-        transform.position = new Vector2(22,-3);
     }
 
     private void Start()
@@ -45,6 +46,8 @@ public class PlayerMovement : MonoBehaviour
         spriteRenderer = GetComponent<SpriteRenderer>();
         gameManager = FindObjectOfType<GameManager>();
         interactionDisplay = FindObjectOfType<InteractionDisplay>();
+
+        animator.runtimeAnimatorController = playerControllers[PlayerPrefs.GetInt("CharacterSelection", 0)];
     }
 
     private void FixedUpdate()
@@ -94,6 +97,9 @@ public class PlayerMovement : MonoBehaviour
                             dialog.dialogAnimation.SetActive(false);
                             break;
                         case SignDialog dialog:
+                            dialog.dialogAnimation.SetActive(false);
+                            break;
+                        case SavePoint dialog:
                             dialog.dialogAnimation.SetActive(false);
                             break;
                         default:
